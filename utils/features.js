@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken"
 
+const cookieOptions={
+maxAge:15*24*60*60*1000,
+sameSite:"none",
+httpOnly:true,
+secure:true
+}
 
 const connectDB=(uri)=>{
     mongoose.connect(uri,{dbName:"Talkio"})
@@ -15,10 +21,7 @@ const sendToken=(req,user,code,message)=>{
 
 
 return res.status(code).cookie("talkio-token",token,{
-    maxAge:15*24*60*60*1000,
-    sameSite:"none",
-    httpOnly:true,
-    secure:true
+cookieOptions
 }).json({
     success:true,
     message,
@@ -27,4 +30,4 @@ return res.status(code).cookie("talkio-token",token,{
 }
 
 
-export {connectDB,sendToken}
+export {connectDB,sendToken,cookieOptions}

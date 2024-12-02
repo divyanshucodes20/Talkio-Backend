@@ -1,6 +1,6 @@
 import { compare } from "bcrypt";
 import {User} from "../models/user.model.js"
-import {sendToken} from "../utils/features.js"
+import {cookieOptions, sendToken} from "../utils/features.js"
 import { TryCatch } from "../middlewares/error.js";
 import { ErrorHandler } from "../utils/utility.js";
 
@@ -35,8 +35,32 @@ const login=TryCatch(async(req,res,next)=>{
     sendToken(res,user,200,`Welcome back ${user.name}`)
 })
 
-const getMyProfile=async(req,res)=>{
+const getMyProfile=TryCatch(
+    async(req,res)=>{
+        const user=await User.findById(req.user);
+        res.status(200).json({
+            success:true,
+            user
+        });
+        
+        }
+)
+const logout=TryCatch(
+    async(req,res)=>{
+        return res.status(200).cookie("talkio-token","",{...cookieOptions,maxAge:0}).json({
+            success:true,
+            message:"Log out Successfully"
+        })
+    }
+)
+const searchUser=TryCatch(
+    async(req,res)=>{
+        const {name}=req.query;
+        
+    }
+)
 
-}
 
-export {getMyProfile,login,newUser}
+
+
+export {getMyProfile,login,newUser,logout,searchUser}
