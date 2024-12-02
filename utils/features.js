@@ -32,7 +32,9 @@ const emitEvent=(req,event,users,data)=>{
 
 }
 
+const deleteFromCloudinary=(public_ids)=>{
+
+}
 
 
-
-export {connectDB,sendToken,cookieOptions,emitEvent}
+export {connectDB,sendToken,cookieOptions,emitEvent,deleteFromCloudinary}

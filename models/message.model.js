@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, model,Types } from "mongoose";
 
 const messageSchema=new Schema({
 content:String,
