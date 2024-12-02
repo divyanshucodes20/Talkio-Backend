@@ -28,6 +28,11 @@ cookieOptions
 })
 
 }
+const emitEvent=(req,event,users,data)=>{
+
+}
 
 
-export {connectDB,sendToken,cookieOptions}
+
+
+export {connectDB,sendToken,cookieOptions,emitEvent}
