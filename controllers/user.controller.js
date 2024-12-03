@@ -6,8 +6,9 @@ import { ErrorHandler } from "../utils/utility.js";
 import {Chat} from "../models/chat.model.js"
 import {Request} from "../models/request.model.js"
 import {NEW_REQUEST, REFETCH_CHATS} from "../constants/events.js"
+import {getOtherMemberOfChat} from "../lib/helper.js"
 
-const newUser=TryCatch(async(req,res)=>{
+const newUser=TryCatch(async(req,res,next)=>{
 
     const {name,username,password,bio}=req.body;
     
@@ -39,8 +40,13 @@ const login=TryCatch(async(req,res,next)=>{
 })
 
 const getMyProfile=TryCatch(
-    async(req,res)=>{
+    async(req,res,next)=>{
         const user=await User.findById(req.user);
+
+        if(!user){
+            return next(new ErrorHandler("User Not Found",400));
+        }        
+
         res.status(200).json({
             success:true,
             user
@@ -49,7 +55,7 @@ const getMyProfile=TryCatch(
         }
 )
 const logout=TryCatch(
-    async(req,res)=>{
+    async(req,res,next)=>{
         return res.status(200).cookie("talkio-token","",{...cookieOptions,maxAge:0}).json({
             success:true,
             message:"Log out Successfully"
@@ -57,7 +63,7 @@ const logout=TryCatch(
     }
 )
 const searchUser=TryCatch(
-    async(req,res)=>{
+    async(req,res,next)=>{
         const {name=""}=req.query;
         const myChats=await Chat.find({groupChat:false,members:req.user});
 
@@ -105,7 +111,7 @@ const sendRequest=TryCatch(
     }
 )
 
-const acceptRequest=TryCatch(
+const acceptRequest=TryCatch( 
     async(req,res,next)=>{
         const {requestId,accept}=req.body;
         const request=await Request.findById(requestId)
@@ -115,7 +121,7 @@ const acceptRequest=TryCatch(
          if(!request){
             return next(new ErrorHandler("Request Not Found",404));
          }
-        if(request.receiver.toString()!==req.user.toString()){
+        if(request.receiver._id.toString()!==req.user.toString()){
            return next(new ErrorHandler("Unauthorized to accept this request",401)); 
         }
        if(!accept){
@@ -165,4 +171,36 @@ const getMyNotifications=TryCatch(
 )
 
 
-export {getMyProfile,login,newUser,logout,searchUser,sendRequest,acceptRequest,getMyNotifications}
+const getMyFreinds=TryCatch(
+    async(req,res,next)=>{
+     const chatId=req.query.chatId;
+     const chats=await Chat.find({
+         members:req.user,
+         groupChat:false,
+     });
+     const freinds=chats.map(({members})=>{
+     const otherMembers=getOtherMemberOfChat(members,req.user);
+     return {
+            _id:otherMembers._id,
+            name:otherMembers.name,
+            avatar:otherMembers.avatar.url,
+     }
+     });
+     if(chatId){
+        const chat=await Chat.findById(chatId);
+        const availableFreinds=freinds.filter((freind)=>!chat.members.includes(freind._id));
+        return res.status(200).json({
+            success:true,
+            freinds:availableFreinds,
+        })
+     }
+     else{
+        return res.status(200).json({
+            success:true,
+            freinds,
+        })
+     } 
+    }
+)
+
+export {getMyProfile,login,newUser,logout,searchUser,sendRequest,acceptRequest,getMyNotifications,getMyFreinds}
