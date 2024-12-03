@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose"
+import mongoose, { Schema, model,Types } from "mongoose"
 
 const requestSchema=new Schema({
 status:{
@@ -9,12 +9,12 @@ status:{
 sender:{
     type:Types.ObjectId,
     ref:"User",
-    required:True,
+    required:true,
 },
 receiver:{
     type:Types.ObjectId,
     ref:"User",
-    required:True,
+    required:true,
 },
 },{timestamps:true});
 
